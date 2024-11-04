@@ -81,7 +81,8 @@ def csv_to_jsonl(csv_file_path, out_file_name, re_generate=False, hdvg=False):
         return
     df = pd.read_csv(csv_file_path)
 
-    df = df[df["video_time"] < 20]
+    if 'video_time' in df.columns:
+        df = df[df["video_time"] < 20] #only ytb_600k_720p has 'video_time'
     # randomly sample 200 videos
 
     video_ids = df["video_id"].unique()
@@ -191,7 +192,8 @@ class DownloadDataset():
             assert ".csv" in metafile, f"metafile must be a csv file, but got {metafile}"
             jsonl_file = os.path.join(self.record_dir, os.path.basename(metafile).replace(".csv", ".jsonl"))
             self.jsonl_files.append(jsonl_file)
-            csv_to_jsonl(metafile, jsonl_file, re_generate=(self.node_id == 0), hdvg=hdvg)
+            if not os.path.exists(jsonl_file):
+                csv_to_jsonl(metafile, jsonl_file, re_generate=(self.node_id == 0), hdvg=hdvg)
 
         self.resolution = resolution
         self.hdvg = hdvg
